@@ -1,0 +1,25 @@
+{
+  "name": "lipstick",
+  "license": "MIT",
+  "authors": [
+    "Oscar Cortez <hi@oscarmcm.com>"
+  ],
+  "description": "A simple off-canvas navigation menu.",
+  "homepage": "http://jqueryboilerplate.com",
+  "keywords": [
+    "jquery-plugin",
+    "jquery",
+    "plugins",
+    "menu",
+    "off-canvas"
+  ],
+  "main": "src/lipstick .js",
+  "dependencies": {
+    "jquery": "1"
+  },
+  "ignore": [
+    "npm-debug.log",
+    "bower_components",
+    "node_modules"
+  ]
+}
