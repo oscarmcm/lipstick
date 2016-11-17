@@ -3,16 +3,35 @@
 	<head>
 		<title>lipstick | A simple off-canvas navigation menu.</title>
 		<script src="../node_modules/jquery/dist/jquery.min.js"></script>
-		<script src="../src/jquery.boilerplate.js"></script>
+		<script src="../src/lipstick.js"></script>
+		<style>
+		#menu {
+			background-color: #2188b6;
+			color: white;
+			display: none;
+		}
+		</style>
 	</head>
 	<body>
-		<div id="element"></div>
+		<main>
+			<button type="button" class="trigger" data-position="left">Show me left!</button>
+			<button type="button" class="trigger" data-position="right">Show me right!</button>
+		</main>
+
+		<div id="menu">
+			<h1>Hello From The Other Side!</h1>
+		</div>
+
 		<script>
-			$( function() {
-				$( "#element" ).defaultPluginName( {
-					propertyName: "a custom value"
-				} );
-			} );
+			$(function() {
+				$("#menu").lipstick({
+					trigger: $(".trigger"),
+					position: 'right',
+  				push: true,
+  				overlay: true,
+					menuColor: '#dc6552'
+				});
+			});
 		</script>
 	</body>
 </html>
