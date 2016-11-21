@@ -54,7 +54,6 @@
     init: function() {
 
       var self = this,
-        trigger = "",
         setting = this.setting,
         $el = this.element,
         transition = "all ease " + setting.speed + "ms";
@@ -67,6 +66,7 @@
         top: setting.top,
         "background-color": setting.menuColor
       } );
+
       if ( setting.position !== "data" ) {
         $el.css( setting.position, "-" + sidePosition( $el ) );
         $el.css( "display", "initial" ); // make menu visible after DOM render
@@ -87,7 +87,7 @@
             "z-index": setting.zIndex - 1,
             "background-color": setting.overlayColor
           } ).click( function() {
-            self.hide( trigger );
+            self.hide( self.trigger );
           } );
 
         $( "body" ).prepend( self.overlayElement );
@@ -109,23 +109,23 @@
       if ( setting.trigger && setting.trigger.length > 0 ) {
 
         setting.trigger.on( "click.slideReveal", function() {
-          trigger = $( this );
+          self.trigger = $( this );
 
           // check if have a data position
-          if ( trigger.data( "position" ) ) {
-            if ( trigger.data( "position" ) === "left" ) {
+          if ( setting.position === "data" && self.trigger.data( "position" ) ) {
+            if ( self.trigger.data( "position" ) === "left" ) {
               $el.css( {
                 "left": "-" + sidePosition( $el ),
                 "display": "initial"
               } );
-              self.show( trigger );
+              self.show( self.trigger );
             } else {
               $el.css( {
                 left: "",
                 right: "-" + sidePosition( $el ),
                 "display": "initial"
               } );
-              self.show( trigger );
+              self.show( self.trigger );
             }
           } else if ( !$el.data( "slide-reveal" ) ) { // Show
             self.show();
@@ -141,7 +141,7 @@
         $( document ).on( "keydown.slideReveal", function( e ) {
           if ( $( "input:focus, textarea:focus" ).length === 0 ) {
             if ( e.keyCode === 27 && $el.data( "slide-reveal" ) ) { // ESC
-              self.hide( trigger );
+              self.hide( self.trigger );
             }
           }
         } );
@@ -149,7 +149,7 @@
 
     },
 
-    show: function( trigger, triggerEvents ) {
+    show: function( trg, triggerEvents ) {
       var setting = this.setting;
       var $el = this.element;
       var $overlayElement = this.overlayElement;
@@ -166,14 +166,14 @@
 
       // slide the panel
       if ( setting.position === "data" ) {
-        $el.css( trigger.data( "position" ), "0px" );
+        $el.css( trg.data( "position" ), "0px" );
       } else {
         $el.css( setting.position, "0px" );
       }
 
       if ( setting.push ) {
         if ( setting.position === "data" ) {
-          if ( trigger.data( "position" ) === "left" ) {
+          if ( trg.data( "position" ) === "left" ) {
             $( "body" ).css( "left", sidePosition( $el ) );
           } else {
             $( "body" ).css( "left", "-" + sidePosition( $el ) );
@@ -195,7 +195,7 @@
 
     },
 
-    hide: function( trigger, triggerEvents ) {
+    hide: function( trg, triggerEvents ) {
 
       var setting = this.setting;
       var $el = this.element;
@@ -212,7 +212,7 @@
       }
 
       if ( setting.position === "data" ) {
-        $el.css( trigger.data( "position" ), "-" + sidePosition( $el ) );
+        $el.css( trg.data( "position" ), "-" + sidePosition( $el ) );
       } else {
         $el.css( setting.position, "-" + sidePosition( $el ) );
       }
