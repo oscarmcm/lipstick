@@ -25,21 +25,21 @@
   // Define default setting
   var Lipstick = function( $el, options ) {
     var setting = {
-      width: 340,
-      push: true,
-      position: "left", // left, right or data
-      speed: 300, //ms
       trigger: "",
+      type: "", // push, overlay, reveal
+      position: "left", // left, right or data
+      menuWidth: 340, //small, medium, large, px
+      speed: 300, // ms
       autoEscape: true,
       top: 0,
-      overlay: false,
       "zIndex": 1050,
+      useOverlay: false,
       overlayColor: "rgba(0,0,0,0.5)",
       menuColor: "",
       show: function() {}, // Before open
       shown: function() {}, //After opened
-      hidden: function() {}, //After closed
-      hide: function() {} //Before close
+      hide: function() {}, //Before close
+      hidden: function() {} //After closed
     };
 
     // Attributes
@@ -60,7 +60,7 @@
 
       $el.css( {
         position: "fixed",
-        width: setting.width,
+        width: setting.menuWidth,
         transition: transition,
         height: "100%",
         top: setting.top,
@@ -72,7 +72,7 @@
         $el.css( "display", "initial" ); // make menu visible after DOM render
       }
 
-      if ( setting.overlay ) {
+      if ( setting.useOverlay ) {
         $el.css( "z-index", setting.zIndex );
 
         // create overlay element
@@ -160,7 +160,7 @@
       }
 
       // show overlay
-      if ( setting.overlay ) {
+      if ( setting.useOverlay ) {
         $overlayElement.show();
       }
 
@@ -224,7 +224,7 @@
         setTimeout( function() {
 
           // hide overlay
-          if ( setting.overlay ) {
+          if ( setting.useOverlay ) {
             $overlayElement.hide();
           }
           setting.hidden( $el );

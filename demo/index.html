@@ -2,6 +2,7 @@
 <html>
 
 <head>
+	<meta charset="utf-8">
 	<title>Lipstick | A simple off-canvas navigation menu.</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -185,11 +186,11 @@
 			<p class="code-section">
 				<pre>
 					<code>$("#menu").lipstick({
+	type: "overlay",
 	trigger: $(".trigger-lipst"),
+	container: $("main"),
 	position: 'right',
-	push: true,
-	overlay: true,
-	menuColor: '#dc6552'
+	useOverlay: true,
 });
 					</code>
 				</pre>
@@ -244,10 +245,11 @@
 	<script>
 		$(function() {
 			$("#menu").lipstick({
+				type: "overlay",
 				trigger: $(".trigger-lipstick"),
-				position: 'data',
-				push: false,
-				overlay: true
+				container: $("menu"),
+				position: "data",
+				useOverlay: true
 			});
 		});
 	</script>

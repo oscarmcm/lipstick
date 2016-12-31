@@ -1,276 +1,286 @@
-( function( $ ) {
+(function($) {
 
-  "use strict";
+	"use strict";
 
-  // Private attributes and method
-  var getPadding = function( $el, side ) {
-    var padding = $el.css( "padding-" + side );
-    return padding ? +padding.substring( 0, padding.length - 2 ) : 0;
-  };
+	// Private attributes and method
+	var getPadding = function($el, side) {
+		var padding = $el.css("padding-" + side);
+		return padding ? +padding.substring(0, padding.length - 2) : 0;
+	};
 
-  var sidePosition = function( $el ) {
-    var paddingLeft = getPadding( $el, "left" );
-    var paddingRight = getPadding( $el, "right" );
-    return ( $el.width() + paddingLeft + paddingRight ) + "px";
-  };
+	var sidePosition = function($el) {
+		var paddingLeft = getPadding($el, "left");
+		var paddingRight = getPadding($el, "right");
+		return ($el.width() + paddingLeft + paddingRight) + "px";
+	};
 
-  // Define default setting
-  var Lipstick = function( $el, options ) {
-    var setting = {
-      width: 340,
-      push: true,
-      position: "left", // left, right or data
-      speed: 300, //ms
-      trigger: "",
-      autoEscape: true,
-      top: 0,
-      overlay: false,
-      "zIndex": 1050,
-      overlayColor: "rgba(0,0,0,0.5)",
-      menuColor: "",
-      show: function() {}, // Before open
-      shown: function() {}, //After opened
-      hidden: function() {}, //After closed
-      hide: function() {} //Before close
-    };
+	// Define default setting
+	var Lipstick = function($el, options) {
+		var setting = {
+			trigger: "", // jQuery DOM object
+			container: "", // jQuery DOM object
+			type: "", // push, overlay, reveal
+			position: "left", // left, right or data
+			menuWidth: 340, //small, medium, large, px
+			speed: 1000, // ms
+			autoEscape: true, // Use ESC
+			top: 0,
+			"zIndex": 1049,
+			useOverlay: false,
+			overlayColor: "rgba(0,0,0,0.5)",
+			menuColor: "",
+			show: function() {}, // Before open
+			shown: function() {}, //After opened
+			hide: function() {}, //Before close
+			hidden: function() {} //After closed
+		};
 
-    // Attributes
-    this.setting = $.extend( setting, options );
-    this.element = $el;
+		// Attributes
+		this.setting = $.extend(setting, options);
+		this.element = $el;
 
-    this.init();
-  };
+		this.init();
+	};
 
-  // Public methods
-  $.extend( Lipstick.prototype, {
-    init: function() {
+	$.extend(Lipstick.prototype, {
+		init: function() {
 
-      var self = this,
-        setting = this.setting,
-        $el = this.element,
-        transition = "all ease " + setting.speed + "ms";
+			var self = this,
+				setting = this.setting,
+				$el = this.element,
+				transition = "all ease " + setting.speed + "ms",
+				defaultDimensions = {
+					'small': '33%',
+					'medium': '66%',
+					'large': '100%'
+				};
 
-      $el.css( {
-        position: "fixed",
-        width: setting.width,
-        transition: transition,
-        height: "100%",
-        top: setting.top,
-        "background-color": setting.menuColor
-      } );
+			$el.css({
+				position: "fixed",
+				width: defaultDimensions[setting.menuWidth] ? defaultDimensions[setting.menuWidth] : setting.menuWidth,
+				transition: transition,
+				height: "100%",
+				top: setting.top,
+				"background-color": setting.menuColor
+			});
 
-      if ( setting.position !== "data" ) {
-        $el.css( setting.position, "-" + sidePosition( $el ) );
-        $el.css( "display", "initial" ); // make menu visible after DOM render
-      }
+			// Add close stage
+			$el.data("slide-reveal", false);
 
-      if ( setting.overlay ) {
-        $el.css( "z-index", setting.zIndex );
+			if (setting.position !== "data") {
+				$el.css(setting.position, "-" + sidePosition($el));
+				$el.css("display", "initial"); // make menu visible after DOM render
+			}
 
-        // create overlay element
-        self.overlayElement = $( "<div class='lipstick-overlay'></div>" )
-          .hide()
-          .css( {
-            position: "fixed",
-            top: 0,
-            left: 0,
-            height: "100%",
-            width: "100%",
-            "z-index": setting.zIndex - 1,
-            "background-color": setting.overlayColor
-          } ).click( function() {
-            self.hide( self.trigger );
-          } );
+			// create overlay element
+			if (setting.useOverlay) {
+				$el.css("z-index", setting.zIndex);
+				self.overlayElement = $("<div class='lipstick-overlay'></div>")
+					.hide()
+					.css({
+						position: "fixed",
+						top: 0,
+						left: 0,
+						height: "100%",
+						width: "100%",
+            transition: transition,
+						"z-index": setting.zIndex - 1,
+						"background-color": setting.overlayColor
+					}).click(function() {
+						self.hide(self.trigger);
+					});
+				$("body").prepend(self.overlayElement);
+			}
 
-        $( "body" ).prepend( self.overlayElement );
-      }
+			// Add animation to Body
+			if (setting.type !== "overlay") {
+				setting.container.css({
+					position: "relative",
+					"overflow-x": "hidden",
+					transition: transition,
+					left: "0px"
+				});
+			}
 
-      // Add close stage
-      $el.data( "slide-reveal", false );
+			if (setting.type === "reveal") {
+				setting.container.css("z-index", setting.zIndex);
+			}
 
-      if ( setting.push ) {
-        $( "body" ).css( {
-          position: "relative",
-          "overflow-x": "hidden",
-          transition: transition,
-          left: "0px"
-        } );
-      }
+			// Bind hide event to ESC
+			if (setting.autoEscape) {
+				$(document).on("keydown.slideReveal", function(e) {
+					if ($("input:focus, textarea:focus").length === 0) {
+						if (e.keyCode === 27 && $el.data("slide-reveal")) { // ESC
+							self.hide(self.trigger);
+						}
+					}
+				});
+			}
 
-      // Attach trigger using click event
-      if ( setting.trigger && setting.trigger.length > 0 ) {
+			// Attach trigger using click event
+			if (setting.trigger && setting.trigger.length > 0) {
+				setting.trigger.on("click.slideReveal", function() {
+					self.trigger = $(this);
+					var position = self.trigger.data("position");
 
-        setting.trigger.on( "click.slideReveal", function() {
-          self.trigger = $( this );
+					// check if have a data position
+					if (setting.position === "data" && position) {
+						if (setting.type !== "reveal") {
+							if (position === "left") {
+								$el.css({
+									"left": "-" + sidePosition($el),
+									"display": "initial"
+								});
+							} else {
+								$el.css({
+									left: "",
+									right: "-" + sidePosition($el),
+									"display": "initial"
+								});
+							}
+							self.show(self.trigger);
+						} else { // Is Reveal Type
+							$el.css("z-index", setting.zIndex - 1);
+							if (position === "left") {
+								$el.css({
+									"left": 0,
+									"display": "initial"
+								});
+							} else {
+								$el.css({
+									"right": 0,
+									"display": "initial"
+								});
+							}
+							self.show(self.trigger);
+						}
+					} else if (!$el.data("slide-reveal")) {
+						self.show(); // Show
+					} else {
+						self.hide(); // Hide
+					}
+				});
+			}
 
-          // check if have a data position
-          if ( setting.position === "data" && self.trigger.data( "position" ) ) {
-            if ( self.trigger.data( "position" ) === "left" ) {
-              $el.css( {
-                "left": "-" + sidePosition( $el ),
-                "display": "initial"
-              } );
-              self.show( self.trigger );
-            } else {
-              $el.css( {
-                left: "",
-                right: "-" + sidePosition( $el ),
-                "display": "initial"
-              } );
-              self.show( self.trigger );
-            }
-          } else if ( !$el.data( "slide-reveal" ) ) { // Show
-            self.show();
-          } else { // Hide
-            self.hide();
-          }
-        } );
+		},
 
-      }
+		show: function(trg, triggerEvents) {
+			var setting = this.setting;
+			var $el = this.element;
+			var $overlayElement = this.overlayElement;
 
-      // Bind hide event to ESC
-      if ( setting.autoEscape ) {
-        $( document ).on( "keydown.slideReveal", function( e ) {
-          if ( $( "input:focus, textarea:focus" ).length === 0 ) {
-            if ( e.keyCode === 27 && $el.data( "slide-reveal" ) ) { // ESC
-              self.hide( self.trigger );
-            }
-          }
-        } );
-      }
+			// trigger show() method
+			if (triggerEvents === undefined || triggerEvents) {
+				setting.show($el);
+			}
 
-    },
+			// show overlay
+			if (setting.useOverlay) {
+				$overlayElement.show();
+			}
 
-    show: function( trg, triggerEvents ) {
-      var setting = this.setting;
-      var $el = this.element;
-      var $overlayElement = this.overlayElement;
+			// Animate menu
+			if (setting.type !== "reveal") {
+				setting.position === "data" ? $el.css(trg.data("position"), "0px") : $el.css(setting.position, "0px")
+			}
 
-      // trigger show() method
-      if ( triggerEvents === undefined || triggerEvents ) {
-        setting.show( $el );
-      }
+			// Animate body
+			var position = setting.position === "data" ? trg.data("position") : setting.position
+			position === "left" ? setting.container.css("left", sidePosition($el)) : setting.container.css("left", "-" + sidePosition($el))
 
-      // show overlay
-      if ( setting.overlay ) {
-        $overlayElement.show();
-      }
+			// add open stage
+			$el.data("slide-reveal", true);
 
-      // slide the panel
-      if ( setting.position === "data" ) {
-        $el.css( trg.data( "position" ), "0px" );
-      } else {
-        $el.css( setting.position, "0px" );
-      }
+			// trigger shown() method
+			if (triggerEvents === undefined || triggerEvents) {
+				setTimeout(function() {
+					setting.shown($el);
+				}, setting.speed);
+			}
 
-      if ( setting.push ) {
-        if ( setting.position === "data" ) {
-          if ( trg.data( "position" ) === "left" ) {
-            $( "body" ).css( "left", sidePosition( $el ) );
-          } else {
-            $( "body" ).css( "left", "-" + sidePosition( $el ) );
-          }
-        } else if ( setting.position === "left" ) {
-          $( "body" ).css( "left", sidePosition( $el ) );
-        } else {
-          $( "body" ).css( "left", "-" + sidePosition( $el ) );
-        }
-      }
-      $el.data( "slide-reveal", true );
+		},
 
-      // trigger shown() method
-      if ( triggerEvents === undefined || triggerEvents ) {
-        setTimeout( function() {
-          setting.shown( $el );
-        }, setting.speed );
-      }
+		hide: function(trg, triggerEvents) {
+			var setting = this.setting;
+			var $el = this.element;
+			var $overlayElement = this.overlayElement;
 
-    },
+			// trigger hide() method
+			if (triggerEvents === undefined || triggerEvents) {
+				setting.hide($el);
+			}
 
-    hide: function( trg, triggerEvents ) {
+			// hide the panel
+			if (setting.type !== "overlay") {
+				setting.container.css("left", "0px");
+			}
 
-      var setting = this.setting;
-      var $el = this.element;
-      var $overlayElement = this.overlayElement;
+			if (setting.position === "data" && setting.type !== "reveal") {
+				$el.css(trg.data("position"), "-" + sidePosition($el));
+			} else {
+				$el.css(setting.position, "-" + sidePosition($el));
+			}
 
-      // trigger hide() method
-      if ( triggerEvents === undefined || triggerEvents ) {
-        setting.hide( $el );
-      }
+			$el.data("slide-reveal", false);
 
-      // hide the panel
-      if ( setting.push ) {
-        $( "body" ).css( "left", "0px" );
-      }
+			// trigger hidden() method
+			if (triggerEvents === undefined || triggerEvents) {
+				setTimeout(function() {
+					// hide overlay
+					if (setting.useOverlay) {
+						$overlayElement.hide();
+					}
+					setting.hidden($el);
+				}, setting.speed);
+			}
+		},
 
-      if ( setting.position === "data" ) {
-        $el.css( trg.data( "position" ), "-" + sidePosition( $el ) );
-      } else {
-        $el.css( setting.position, "-" + sidePosition( $el ) );
-      }
+		toggle: function(triggerEvents) {
+			var $el = this.element;
+			if ($el.data("slide-reveal")) {
+				this.hide(triggerEvents);
+			} else {
+				this.show(triggerEvents);
+			}
+		},
 
-      $el.data( "slide-reveal", false );
+		remove: function() {
+			this.element.removeData("slide-reveal-model");
+			if (this.setting.trigger && this.setting.trigger.length > 0) {
+				this.setting.trigger.off(".slideReveal");
+			}
+			if (this.overlayElement && this.overlayElement.length > 0) {
+				this.overlayElement.remove();
+			}
+		}
 
-      // trigger hidden() method
-      if ( triggerEvents === undefined || triggerEvents ) {
-        setTimeout( function() {
+	});
 
-          // hide overlay
-          if ( setting.overlay ) {
-            $overlayElement.hide();
-          }
-          setting.hidden( $el );
-        }, setting.speed );
-      }
-    },
+	// jQuery collection methods
+	$.fn.lipstick = function(options, triggerEvents) {
 
-    toggle: function( triggerEvents ) {
-      var $el = this.element;
-      if ( $el.data( "slide-reveal" ) ) {
-        this.hide( triggerEvents );
-      } else {
-        this.show( triggerEvents );
-      }
-    },
+		if (options !== undefined && typeof(options) === "string") {
+			this.each(function() {
+				var slideReveal = $(this).data("slide-reveal-model");
+				if (options === "show") {
+					slideReveal.show(triggerEvents);
+				} else if (options === "hide") {
+					slideReveal.hide(triggerEvents);
+				} else if (options === "toggle") {
+					slideReveal.toggle(triggerEvents);
+				}
+			});
+		} else {
+			this.each(function() {
+				if ($(this).data("slide-reveal-model")) {
+					$(this).data("slide-reveal-model").remove();
+				}
+				$(this).data("slide-reveal-model", new Lipstick($(this), options));
+			});
+		}
 
-    remove: function() {
-      this.element.removeData( "slide-reveal-model" );
-      if ( this.setting.trigger && this.setting.trigger.length > 0 ) {
-        this.setting.trigger.off( ".slideReveal" );
-      }
-      if ( this.overlayElement && this.overlayElement.length > 0 ) {
-        this.overlayElement.remove();
-      }
-    }
+		return this;
 
-  } );
+	};
 
-  // jQuery collection methods
-  $.fn.lipstick = function( options, triggerEvents ) {
-
-    if ( options !== undefined && typeof( options ) === "string" ) {
-      this.each( function() {
-        var slideReveal = $( this ).data( "slide-reveal-model" );
-
-        if ( options === "show" ) {
-          slideReveal.show( triggerEvents );
-        } else if ( options === "hide" ) {
-          slideReveal.hide( triggerEvents );
-        } else if ( options === "toggle" ) {
-          slideReveal.toggle( triggerEvents );
-        }
-      } );
-    } else {
-      this.each( function() {
-        if ( $( this ).data( "slide-reveal-model" ) ) {
-          $( this ).data( "slide-reveal-model" ).remove();
-        }
-        $( this ).data( "slide-reveal-model", new Lipstick( $( this ), options ) );
-      } );
-    }
-
-    return this;
-
-  };
-
-}( jQuery ) );
+}(jQuery));
