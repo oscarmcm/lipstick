@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Lipstick | A simple off-canvas navigation menu.</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="A minimal off-canvas menu.">
+	<meta name="author" content="Oscar Cortez">
+	<link rel="me" href="https://twitter.com/oscar_mcm">
+	<link rel="canonical" href="http://oscarmcm.github.io/lipstick/">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css">
+	<style>
+		table th,
+		td {
+			border: 1px solid black;
+			text-align: center;
+			padding: 1%;
+		}
+
+		table tr:first-child th {
+			border-top: 0;
+		}
+
+		table tr:last-child td {
+			border-bottom: 0;
+		}
+
+		table tr td:first-child,
+		table tr th:first-child {
+			border-left: 0;
+		}
+
+		table tr td:last-child,
+		table tr th:last-child {
+			border-right: 0;
+		}
+
+		.link,
+		.link:active,
+		.link:hover,
+		.link:visited {
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+			position: relative;
+			transition: .5s color ease;
+			text-decoration: none
+		}
+
+		.link:after {
+			content: "";
+			transition: .5s all ease;
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+			position: absolute;
+			bottom: -.25em;
+			height: 5px;
+			height: .35rem;
+			width: 0;
+			background: #d73444;
+			left: 50%;
+			-webkit-transform: translateX(-50%);
+			transform: translateX(-50%)
+		}
+
+		#footer,
+		#social {
+			position: fixed;
+			z-index: 100
+		}
+
+		#hero,
+		.hero-content {
+			height: 100vh
+		}
+
+		.link:hover:after {
+			width: 100%
+		}
+
+		.smile {
+			display: inline-block;
+			transform: rotate(90deg);
+			margin: 0 7px;
+			font-weight: bolder;
+			font-size: 17px
+		}
+
+		#hero {
+			color: #fff;
+			top: 0;
+			left: 0;
+			margin: 0;
+			padding: 0;
+			background-image: url(https://c2.staticflickr.com/4/3679/11900725646_34d10fc390_o.jpg);
+			background-position: center center;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: cover
+		}
+
+		#wingHead {
+			font-weight: bolder;
+			font-size: 15vh;
+			text-transform: uppercase;
+			color: #fff
+		}
+
+		#thanks {
+			min-height: 50vh
+		}
+
+		#footer,
+		#social {
+			bottom: 5%
+		}
+
+		#social {
+			left: 2%;
+			display: inline
+		}
+
+		#footer {
+			font-weight: bolder;
+			right: 2%;
+			mix-blend-mode: difference
+		}
+
+		#menu {
+			background-color: #000;
+			display: none;
+			opacity: .7
+		}
+
+		#menu ul {
+			list-style: none
+		}
+
+		#menu ul li {
+			padding: 30px 0
+		}
+
+		#menu ul li a {
+			font-size: 40px;
+			color: #fff
+		}
+	</style>
+</head>
+
+<body>
+
+	<main>
+
+		<section id="hero" class="text-center">
+			<div class="hero-content center">
+				<div>
+					<h1 id="wingHead">Lipstick</h1>
+					<p>Simple off-canvas navigation menu</p>
+					<p><em>v1.0.0</em></p>
+					<br>
+					<a href="#why" class="scroll" data-scroll="1000"><button class="btn btn-outline">check it out</button></a>
+				</div>
+			</div>
+		</section>
+
+		<section class="container">
+			<h5 class="title">Documentation</h5>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Default</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>trigger</td>
+						<td>jQuery DOM Selection</td>
+						<td><code>undefined</code></td>
+						<td>DOM element that you want to use as a trigger to show and hide a panel. If you don't specify, please see <a href="#method">the method section</a>.</td>
+					</tr>
+					<tr>
+						<td>container</td>
+						<td>jQuery DOM Selection</td>
+						<td><code>undefined</code></td>
+						<td>DOM element that define lipstick container</td>
+					</tr>
+					<tr>
+						<td>type</td>
+						<td><code>String</code></td>
+						<td>
+							<code>'push'</code>
+							<code>'overlay'</code>
+							<code>'reveal'</code>
+						</td>
+						<td>lipstick panel type, please see<a href="#type-panel">The panel section</td>
+  				</tr>
+          <tr>
+  					<td>position</td>
+  					<td><code>String</code></td>
+  					<td>
+              <code>'left'</code>
+              <code>'right'</code>
+              <code>'data'</code>
+            </td>
+  					<td>Whether you want to show the panel. Set it to <code>'data'</code> if you want dynamic position</td>
+  				</tr>
+  				<tr>
+  					<td>menuWidth</td>
+  					<td><code>integer || String</code></td>
+  					<td><code>340</code></td>
+  					<td>Width of a side panel. <code>Integer</code> value will be evaluated as <code>px</code>. <code>String</code> value will be <code>'small'</code>, <code>'medium'</code> or <code>'large'</code>, based on viewport dimensions</td>
+  				</tr>
+          <tr>
+  					<td>speed</td>
+  					<td><code>integer</code></td>
+  					<td><code>1000</code></td>
+  					<td>Animating time for showing a side panel. The unit is millisecond.</td>
+  				</tr>
+          <tr>
+  					<td>autoEscape</td>
+  					<td><code>boolean</code></td>
+  					<td><code>true</code></td>
+  					<td>Whether you want to enable users to use <kbd>ESC</kbd> to hide a panel.</td>
+  				</tr>
+          <tr>
+  					<td>top</td>
+  					<td><code>integer</code></td>
+  					<td><code>0</code></td>
+  					<td>Starting position from the top of the window. This option may be useful if you have a fixed topbar, for instance.</td>
+  				</tr>
+          <tr>
+  					<td>zIndex</td>
+  					<td><code>integer</code></td>
+  					<td><code>1049</code></td>
+  					<td><code>z-index</code> of your side panel. In case you use <code>overlay</code>, the overlay's <code>z-index</code> will be set to the given value - 1.</td>
+  				</tr>
+  				<tr>
+  					<td>useOverlay</td>
+  					<td><code>boolean</code></td>
+  					<td><code>false</code></td>
+  					<td>Whether you want to add the overlay to the main content.</td>
+  				</tr>
+  				<tr>
+  					<td>overlayColor</td>
+  					<td><code>String</code></td>
+  					<td><code>rgba(0,0,0,0.5)</code></td>
+  					<td>Valid <code>css</code> color value.</td>
+  				</tr>
+  				<tr>
+  					<td>menuColor</td>
+  					<td><code>String</code></td>
+  					<td><code>rgb(102,51,153)</code></td>
+  					<td>Valid <code>css</code> color value for the panel</td>
+  				</tr>
+  				<tr>
+  					<td>show</td>
+  					<td><code>function</code></td>
+  					<td>-</td>
+  					<td>Function that you want to trigger before a panel starts revealing. It passes two parameters, jQuery side panel and trigger objects respectively.</td>
+  				</tr>
+  				<tr>
+  					<td>shown</td>
+  					<td><code>function</code></td>
+  					<td>-</td>
+  					<td>Function that you want to trigger once a panel is fully shown. It passes two parameters, jQuery side panel and trigger objects respectively</td>
+  				</tr>
+  				<tr>
+  					<td>hide</td>
+  					<td><code>function</code></td>
+  					<td>-</td>
+  					<td>Function that you want to trigger before a panel starts hiding. It passes two parameters, jQuery side panel and trigger objects respectively</td>
+  				</tr>
+  				<tr>
+  					<td>hidden</td>
+  					<td><code>function</code></td>
+  					<td>-</td>
+  					<td>Function that you want to trigger once a panel is fully hidden. It passes two parameters, jQuery side panel and trigger objects respectively</td>
+  				</tr>
+  			</tbody>
+  		</table>
+    </section>
+
+    <section class="container" id="method">
+      <h5 class="title">Methods</h5>
+      <p>After you execute <code>Lipstick()</code> especially without specifying the trigger option, you can show or hide the side panel programmatically.</p>
+      <p>HTML code:</p>
+      <pre>
+        <code>
+< div id='slider'>Hello World!!</ div>
+        </code>
+      </pre>
+      <p>JS code:</p>
+      <pre>
+        <code>
+var lpstk = $('#slider').Lipstick(); // return $('#slider')
+
+// To show the panel
+lpstk.lipstick("show") // which is equal to $('#slider').lipstick("show");
+
+// To hide the panel
+lpstk.lipstick("hide") // which is equal to $('#slider').lipstick("hide");
+
+// To toggle the panel
+lpstk.lipstick("toggle") // which is equal to $('#slider').lipstick("toggle");
+        </code>
+      </pre>
+      <div class="text-center">
+        <button id="show-manually">Click to call<br> <span>$('#slider').lipstick("show")</span></button>
+        <button id="hide-manually">Click to call<br> <span>$('#slider').lipstick("hide")</span></button>
+        <button id="toggle-manually">Click to call<br> <span>$('#slider').lipstick("toggle")</span></button>
+      </div>
+      <br>
+      <p>If you want to skip the callback functions: <code>show(), shown(), hide() and hidden()</code> mentioned in the next section, you can send <code>false</code> as the second parameter as</p>
+      <pre><code>slider.lipstick("show", false);</code></pre>
+      <pre><code>slider.lipstick("hide", false);</code></pre>
+      <pre><code>slider.lipstick("toggle", false);</code></pre>
+    </section>
+	</main>
+
+	<div id="social">
+		<iframe src="https://ghbtns.com/github-btn.html?user=oscarmcm&amp;repo=lipstick&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="95px" height="20px"></iframe>
+		<iframe src="https://ghbtns.com/github-btn.html?user=oscarmcm&amp;repo=lipstick&amp;type=fork&amp;count=true" frameborder="0" scrolling="0" width="90px" height="20px"></iframe>
+	</div>
+
+  <footer id="footer">
+		Made with <span id="heart">♡</span> By <a id="linkP" class="underline white link" href="http://oscarmcm.com" target="_blank">@oscarmcm</a>
+	</footer>
+
+	<aside id="menu">
+		<ul class="text-center">
+			<li><a href="/" class="link">Home</a></li>
+			<li><a href="docs.html" class="link">Docs</a></li>
+			<li><a href="demo.html" class="link">Demos</a></li>
+		</ul>
+	</aside>
+
+	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="../src/lipstick.js"></script>
+	<script>
+		$(function() {
+
+      var sample = $("#menu").lipstick({
+        trigger: $(".trigger-lipstick"),
+        container: $("menu"),
+        position: "left",
+      })
+      $("#show-manually").click(function(){
+        sample.lipstick("show");
+      });
+      $("#hide-manually").click(function(){
+        sample.lipstick("hide");
+      });
+      $("#toggle-manually").click(function(){
+        sample.lipstick("toggle");
+      });
+
+			/*$("#menu").lipstick({
+				type: "overlay",
+				trigger: $(".trigger-lipstick"),
+				container: $("#menu"),
+				position: "data",
+				useOverlay: true
+			});*/
+		});
+	</script>
+</body>
+
+</html>
